@@ -1,0 +1,19 @@
+name: Check shared prices
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check every file, and that the writer changed only their own
+        env:
+          ACTOR: ${{ github.actor }}
+        run: |
+          changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+          python3 validate.py --actor "$ACTOR" --changed $changed
